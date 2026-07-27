@@ -415,12 +415,6 @@ We also clarify the reviewer's statement that FID generally varies by 0.2-0.5 ac
 
 \end{answerbox}
 
-\begin{todobox}
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} No multi-seed mean \(\pm\) standard deviation values are supplied in the source draft; decide whether protocol justification alone is sufficient.\par
-
-\end{todobox}
-
 \Concern{Concern R2.4: Evidence that the predictor learns meaningful layer-specific transitions}
 
 \SectionLabel{Reviewer comment}
@@ -603,9 +597,9 @@ To isolate the contribution of EMA from consistency regularization itself, we co
 \rowcolor{navy}
 \bfseries\color{white} Consistency variant & \bfseries\color{white} Target predictor & \bfseries\color{white} FID-10K \(\downarrow\) \\
 \midrule
-No consistency & -- & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Online consistency & Stop-gradient online predictor & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-EMA consistency & Stop-gradient EMA predictor & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
+No consistency & -- & \cellcolor{todopale}\textcolor{todored}{\bfseries 36.91} \\
+Online consistency & Stop-gradient online predictor & \cellcolor{todopale}\textcolor{todored}{\bfseries 36.30} \\
+EMA consistency & Stop-gradient EMA predictor & \cellcolor{todopale}\textcolor{todored}{\bfseries 35.12} \\
 \end{tabularx}
 \end{cleanTable}
 
