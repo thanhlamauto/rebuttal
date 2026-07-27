@@ -520,15 +520,39 @@ To study this interaction more directly, we fix \(\lambda_{\mathrm{pred}}=1\) an
 
 \begin{cleanTable}
 \small
-\begin{tabularx}{\linewidth}{Y C{0.15\linewidth} C{0.19\linewidth} C{0.21\linewidth}}
+\begin{tabularx}{\linewidth}{
+    Y
+    C{0.12\linewidth}
+    C{0.17\linewidth}
+    C{0.17\linewidth}
+    C{0.19\linewidth}
+}
 \rowcolor{navy}
-\bfseries\color{white} \(\lambda_{\mathrm{div}}\) & \bfseries\color{white} \(\lambda_{\mathrm{pred}}\) & \bfseries\color{white} \(\lambda_{\mathrm{div}}/\lambda_{\mathrm{pred}}\) & \bfseries\color{white} FID-10K (lower is better) \\
+\bfseries\color{white} \(\lambda_{\mathrm{div}}\)
+& \bfseries\color{white} \(\lambda_{\mathrm{pred}}\)
+& \bfseries\color{white} \(\lambda_{\mathrm{div}}/\lambda_{\mathrm{pred}}\)
+& \bfseries\color{white} FID-10K \(\downarrow\)
+& \bfseries\color{white} Mean off-diag \(\downarrow\) \\
 \midrule
-0 & 1 & 0 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-1 & 1 & 1 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-2 & 1 & 2 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-4 & 1 & 4 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-8 & 1 & 8 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
+0 & 1 & 0 & 78.63
+% & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]}
+& 0.823531 \\
+
+1 & 1 & 1
+& \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]}
+& \cellcolor{todopale}\textcolor{todored}{\bfseries [X.XXXXXX]} \\
+
+2 & 1 & 2 & 66.68
+% & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]}
+& 0.663156 \\
+
+4 & 1 & 4 & 76.76
+% & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]}
+& 0.627809 \\
+
+8 & 1 & 8 & 76.91 & 0.605842
+% & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]}
+% & \cellcolor{todopale}\textcolor{todored}{\bfseries [X.XXXXXX]} \\
 \end{tabularx}
 \end{cleanTable}
 
