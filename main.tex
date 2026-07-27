@@ -237,11 +237,11 @@ Table 4 of the main paper reports the original FID-10K component ablation. Follo
 \midrule
 Vanilla & - & - & - & 49.36 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
 LayerSync & - & - & - & 43.26 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Diversity only & - & - & Yes & 44.44 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Prediction only & Yes & - & - & 42.73 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Prediction + consistency /\allowbreak{} w/\allowbreak{}o diversity & Yes & Yes & - & 38.85 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Prediction + diversity /\allowbreak{} w/\allowbreak{}o consistency & Yes & - & Yes & - & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Full LARA & Yes & Yes & Yes & 35.12 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
+Diversity only & - & - & Yes & 44.44 & \cellcolor{todopale}\textcolor{todored}{\bfseries 43.02} \\
+Prediction only & Yes & - & - & 42.73 & \cellcolor{todopale}\textcolor{todored}{\bfseries 41.48} \\
+Prediction + consistency /\allowbreak{} w/\allowbreak{}o diversity & Yes & Yes & - & 38.85 & \cellcolor{todopale}\textcolor{todored}{\bfseries 38.07} \\
+Prediction + diversity /\allowbreak{} w/\allowbreak{}o consistency & Yes & - & Yes & 36.91 & \cellcolor{todopale}\textcolor{todored}{\bfseries 36.14} \\
+Full LARA & Yes & Yes & Yes & 35.12 & \cellcolor{todopale}\textcolor{todored}{\bfseries 34.43} \\
 \end{tabularx}
 \end{cleanTable}
 
@@ -631,7 +631,7 @@ There is no theoretical justification for why EMA targets (used in eq (6), consi
 
 \begin{answerbox}
 
-Thank you for raising this distinction. LARA eliminates the need to manually identify a specific source-target pair, not every possible sampling hyperparameter. This is already demonstrated by the full-uniform variant, which samples layer pairs without any preferred pair and improves FID from 43.26 for LayerSync to 39.24. The depth-centered gap prior further improves FID to 35.12 by changing only the probability assigned to different gaps and depths; it still trains one shared predictor over many layer relations rather than committing supervision to one handcrafted pair.
+LARA eliminates the need to manually identify a specific source-target pair, not every possible sampling hyperparameter. This is already demonstrated by the full-uniform variant, which samples layer pairs without any preferred pair and improves FID from 43.26 for LayerSync to 39.24. The depth-centered gap prior further improves FID to 35.12 by changing only the probability assigned to different gaps and depths; it still trains one shared predictor over many layer relations rather than committing supervision to one handcrafted pair.
 
 
 Although Table 8 reports different numerical values across model sizes, they follow the same normalized rule rather than independent manual tuning: the mean gap is \(L/4\) for all three backbones-\(3/12\), \(6/24\), and \(7/28\)-while both the gap standard deviation and midpoint standard deviation are approximately \(L/6\)-\(2/12\), \(4/24\), and \(4.7/28\). Thus, the distribution scales directly with network depth. The Gaussian prior is motivated by the uniform-sampling diagnostic: very short transitions are easy but less informative, whereas very long transitions have substantially higher prediction error, increasing from 0.025 in the shortest-gap quartile to 0.152 in the longest. The prior therefore provides a simple architecture-scaled bias toward informative medium-distance transitions, rather than replacing fixed-pair selection with another exhaustive layer search.
@@ -653,7 +653,7 @@ Although Table 8 reports different numerical values across model sizes, they fol
 
 \begin{answerbox}
 
-Thank you for raising this point. We acknowledge that the current large-scale ImageNet results are reported as single runs rather than mean \(\pm\) standard deviation. Full multi-seed training of SiT-XL/2 for up to 2M iterations is computationally expensive; this is also the reporting convention used by the directly related large-scale REPA, SRA, and LayerSync studies, whose main ImageNet tables report point estimates rather than multi-seed statistics.
+We acknowledge that the current large-scale ImageNet results are reported as single runs rather than mean \(\pm\) standard deviation. Full multi-seed training of SiT-XL/2 for up to 2M iterations is computationally expensive; this is also the reporting convention used by the directly related large-scale REPA, SRA, and LayerSync studies, whose main ImageNet tables report point estimates rather than multi-seed statistics.
 
 
 Nevertheless, a generic variance estimate cannot be transferred across different backbones, training stages, samplers, evaluators, and CFG settings without repeated runs under the same protocol. More importantly, our central conclusion does not rely on the near-saturated CFG comparison of 1.88 versus 1.93. In the controlled no-CFG setting at 2M iterations, LARA achieves 5.09 FID, compared with 6.80 for LayerSync and 7.97 for SRA-absolute improvements of 1.71 and 2.88 FID, respectively. The same ordering is observed across B/L/XL backbones and multiple training budgets, and is further supported by the HumanML3D and representation-quality results.
@@ -681,7 +681,7 @@ Nevertheless, a generic variance estimate cannot be transferred across different
 
 \begin{answerbox}
 
-Thank you for raising this point. Our primary goal is to isolate the effect of internal representation alignment rather than introduce a new generative architecture. We therefore use SiT because it provides the common controlled backbone adopted by the most directly related alignment methods, including REPA, SRA, and LayerSync. Keeping the backbone, tokenizer, sampler, and training budget fixed allows the differences to be attributed to the alignment objective rather than to concurrent architectural or training-recipe changes. LARA leaves the SiT backbone unchanged and adds only a training-time transition predictor.
+Our primary goal is to isolate the effect of internal representation alignment rather than introduce a new generative architecture. We therefore use SiT because it provides the common controlled backbone adopted by the most directly related alignment methods, including REPA, SRA, and LayerSync. Keeping the backbone, tokenizer, sampler, and training budget fixed allows the differences to be attributed to the alignment objective rather than to concurrent architectural or training-recipe changes. LARA leaves the SiT backbone unchanged and adds only a training-time transition predictor.
 
 
 The evaluation is also not restricted to one network depth or to image generation. We test SiT-B/L/XL with 12, 24, and 28 blocks, and further transfer the same objective to an eight-block MDM-style motion transformer on HumanML3D. LARA improves motion FID from 0.503 to 0.4343 and outperforms LayerSync's 0.4801 while using 300K rather than 600K iterations, providing evidence that the transition objective transfers across model depths and modalities.
