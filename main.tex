@@ -31,7 +31,7 @@
 
 \color{ink}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.48em}
+\setlength{\parskip}{0.42em}
 \setlength{\emergencystretch}{2.5em}
 \renewcommand{\arraystretch}{1.26}
 \widowpenalty=10000
@@ -156,15 +156,13 @@ The framework is not restricted to this particular predictor architecture. Using
 
 
 \begin{cleanTable}
-\small
-\begin{tabularx}{\linewidth}{Y C{0.20\linewidth} C{0.25\linewidth}}
+\scriptsize
+\begin{tabularx}{\linewidth}{Y C{0.12\linewidth} C{0.12\linewidth} C{0.24\linewidth} C{0.10\linewidth}}
 \rowcolor{navy}
-\bfseries\color{white} Predictor architecture & \bfseries\color{white} Parameters & \bfseries\color{white} FID-10K (lower is better) \\
+\bfseries\color{white} Predictor architecture / metric & \bfseries\color{white} CNN & \bfseries\color{white} MLP & \bfseries\color{white} ConvNeXt + Attention & \bfseries\color{white} ViT \\
 \midrule
-CNN & 15.8M & 36.04 \\
-MLP & 15.8M & 36.65 \\
-ConvNeXt + Attention & 16.0M & 35.12 \\
-ViT & 16.1M & 36.34 \\
+Parameters & 15.8M & 15.8M & 16.0M & 16.1M \\
+FID-10K (lower is better) & 36.04 & 36.65 & 35.12 & 36.34 \\
 \end{tabularx}
 \end{cleanTable}
 
@@ -599,23 +597,21 @@ The results expose a clear trade-off between transition alignment and layer dive
 
 \ReviewerTitle{Reviewer 3}
 
-\Concern{Concern R3.1: Question 1 - source text missing}
+\Concern{Concern R3.1: EMA-target stability and consistency ablation}
 
 \SectionLabel{Reviewer comment}
 
-\begin{todobox}
+\begin{reviewbox}
 
-\textbf{\textcolor{todored}{Missing reviewer text.}} X - Reviewer 3 Question 1 is not present in the source draft.\par
+There is no theoretical justification for why EMA targets (used in eq (6), consistency loss) are stable? If the EMA predictor drifts poorly then the consistency signal could be circular and not informative. So it turns out the importance of ablating the EMA consistency target. I mean what happens with a non-EMA consistency target (e.g. a stop-gradient online predictor)? So to me it is unclear how much the EMA contributes versus consistency regularization in general.\par
 
-\end{todobox}
+\end{reviewbox}
 
 \SectionLabel{Author response}
 
 \begin{todobox}
 
 \textbf{\textcolor{todored}{X - Draft response not yet provided.}}\par
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Insert the exact reviewer question.\par
 
 \textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Draft the corresponding response.\par
 
@@ -720,15 +716,13 @@ The existing HumanML3D experiment already provides evidence beyond image-specifi
 
 
 \begin{cleanTable}
-\small
-\begin{tabularx}{\linewidth}{Y C{0.20\linewidth} C{0.25\linewidth}}
+\scriptsize
+\begin{tabularx}{\linewidth}{Y C{0.12\linewidth} C{0.12\linewidth} C{0.24\linewidth} C{0.10\linewidth}}
 \rowcolor{navy}
-\bfseries\color{white} Predictor architecture & \bfseries\color{white} Parameters & \bfseries\color{white} FID-10K (lower is better) \\
+\bfseries\color{white} Predictor architecture / metric & \bfseries\color{white} CNN & \bfseries\color{white} MLP & \bfseries\color{white} ConvNeXt + Attention & \bfseries\color{white} ViT \\
 \midrule
-CNN & 15.8M & 36.04 \\
-MLP & 15.8M & 36.65 \\
-ConvNeXt + Attention & 16.0M & 35.12 \\
-ViT & 16.1M & 36.34 \\
+Parameters & 15.8M & 15.8M & 16.0M & 16.1M \\
+FID-10K (lower is better) & 36.04 & 36.65 & 35.12 & 36.34 \\
 \end{tabularx}
 \end{cleanTable}
 
