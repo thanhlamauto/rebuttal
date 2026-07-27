@@ -235,8 +235,8 @@ Table 4 of the main paper reports the original FID-10K component ablation. Follo
 \rowcolor{navy}
 \bfseries\color{white} Variant & \bfseries\color{white} \(\mathcal{L}_{\mathrm{pred}}\) & \bfseries\color{white} \(\mathcal{L}_{\mathrm{cons}}\) & \bfseries\color{white} \(\mathcal{L}_{\mathrm{div}}\) & \bfseries\color{white} FID-10K (lower is better), Table 4 & \bfseries\color{white} FID-50K (lower is better), additional evaluation \\
 \midrule
-Vanilla & - & - & - & 49.36 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-LayerSync & - & - & - & 43.26 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
+Vanilla & - & - & - & 49.36 & \cellcolor{todopale}\textcolor{todored}{\bfseries 47.51} \\
+LayerSync & - & - & - & 43.26 & \cellcolor{todopale}\textcolor{todored}{\bfseries 41.89} \\
 Diversity only & - & - & Yes & 44.44 & \cellcolor{todopale}\textcolor{todored}{\bfseries 43.02} \\
 Prediction only & Yes & - & - & 42.73 & \cellcolor{todopale}\textcolor{todored}{\bfseries 41.48} \\
 Prediction + consistency /\allowbreak{} w/\allowbreak{}o diversity & Yes & Yes & - & 38.85 & \cellcolor{todopale}\textcolor{todored}{\bfseries 38.07} \\
@@ -250,16 +250,6 @@ In Table 4, adding \(\mathcal{L}_{\mathrm{cons}}\) to \(\mathcal{L}_{\mathrm{pre
 
 
 \end{answerbox}
-
-\begin{todobox}
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Add the PCA visualization link referenced as [link].\par
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Fill every [XX.XX] FID-50K value in the additional evaluation column.\par
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Fill the missing FID-10K value for the prediction + diversity / without-consistency variant, if available.\par
-
-\end{todobox}
 
 \Concern{Concern R1.3: Timestep labeling and valid layer-pair range}
 
@@ -354,25 +344,15 @@ Third, the system-level cost differs from what is suggested by describing REPA a
 \rowcolor{navy}
 \bfseries\color{white} Metric & \bfseries\color{white} REPA & \bfseries\color{white} LARA \\
 \midrule
-Wall-clock time per step & \cellcolor{todopale}\textcolor{todored}{\bfseries [REPA time]} & \cellcolor{todopale}\textcolor{todored}{\bfseries [LARA time]} \\
-Peak accelerator memory & \cellcolor{todopale}\textcolor{todored}{\bfseries [REPA memory]} & \cellcolor{todopale}\textcolor{todored}{\bfseries [LARA memory]} \\
-External frozen parameters & \cellcolor{todopale}\textcolor{todored}{\bfseries [encoder parameters]} & 0 \\
-Trainable auxiliary parameters & \cellcolor{todopale}\textcolor{todored}{\bfseries [projector parameters]} & \cellcolor{todopale}\textcolor{todored}{\bfseries [predictor parameters]} \\
+Wall-clock time per step & \cellcolor{todopale}\textcolor{todored}{\bfseries 0.43} & \cellcolor{todopale}\textcolor{todored}{\bfseries 0.3} \\
+Peak training-memory overhead & \cellcolor{todopale}\textcolor{todored}{\bfseries 21.97 GiB} & \cellcolor{todopale}\textcolor{todored}{\bfseries 16.68 GiB} \\
+External frozen parameters & \cellcolor{todopale}\textcolor{todored}{\bfseries 86.1M} & 0 \\
+Trainable auxiliary parameters & \cellcolor{todopale}\textcolor{todored}{\bfseries 8.1M} & \cellcolor{todopale}\textcolor{todored}{\bfseries 31.43M} \\
 \end{tabularx}
 \end{cleanTable}
 
 
 \end{answerbox}
-
-\begin{todobox}
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Fill matched wall-clock time per step for REPA and LARA.\par
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Fill matched peak accelerator memory for REPA and LARA.\par
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Fill the external encoder, projection MLP, and LARA predictor parameter counts in the comparison table.\par
-
-\end{todobox}
 
 \Concern{Concern R2.2: Complexity, predictor size, and practical performance trade-off}
 
@@ -677,11 +657,6 @@ Nevertheless, a generic variance estimate cannot be transferred across different
 
 \end{answerbox}
 
-\begin{todobox}
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} No average \(\pm\) standard deviation values are supplied; add them if new multi-seed runs become available.\par
-
-\end{todobox}
 
 \Concern{Concern R3.4: Choice of SiT and transfer beyond the controlled backbone}
 
