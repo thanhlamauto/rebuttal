@@ -11,6 +11,7 @@
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage[most]{tcolorbox}
 \usepackage{fancyhdr}
@@ -116,7 +117,7 @@
 
 \textbf{Weakness.} The predictor architecture is important but under-specified in the main paper. Although the appendix briefly describes it as a compact ConvNet-style spatial predictor, the main text does not explain key implementation details, such as how the layer indices a and b are injected. Because the proposed method relies heavily on this predictor, these details should be discussed more explicitly in the main paper.\par
 
-\textbf{Question.} Please provide more details about the transition predictor architecture. In particular, how are the source layer index (a), target layer index (b), and timestep (t) injected into the ConvNet-style predictor? Clarifying whether this is done through concatenation, additive embeddings, FiLM/AdaLN-style modulation, or another mechanism would improve reproducibility.\par
+\textbf{Question.} Please provide more details about the transition predictor architecture. In particular, how are the source layer index \(a\), target layer index \(b\), and timestep \(t\) injected into the ConvNet-style predictor? Clarifying whether this is done through concatenation, additive embeddings, FiLM/AdaLN-style modulation, or another mechanism would improve reproducibility.\par
 
 \end{reviewbox}
 
@@ -127,16 +128,20 @@
 We clarify the transition predictor architecture and conditioning mechanism below. A corresponding architectural diagram and the complete implementation details will be included in the revised manuscript.
 
 
-Given a source activation A\_a(t) in R\textasciicircum{}(N x C), we reshape the token sequence into its spatial grid and process it with a lightweight ConvNet-style predictor. The default predictor uses ConvNeXt-style residual blocks, with an attention layer inserted after every [number] convolutional blocks to capture non-local spatial interactions.
+Given a source activation \(A_a(t)\) in \(\mathbb{R}^{N \times C}\), we reshape the token sequence into its spatial grid and process it with a lightweight ConvNet-style predictor. The default predictor uses ConvNeXt-style residual blocks, with an attention layer inserted after every [number] convolutional blocks to capture non-local spatial interactions.
 
 
-The timestep embedding e\_t follows the mechanism used in the SiT backbone. The source and target layer indices a and b are separately one-hot encoded and projected into embeddings e\_a and e\_b. We additionally encode the relative layer gap b-a, which provides the predictor with the transition distance. These conditioning signals are combined and injected between predictor blocks through FiLM/AdaLN-style modulation:
+The timestep embedding \(e_t\) follows the mechanism used in the SiT backbone. The source and target layer indices \(a\) and \(b\) are separately one-hot encoded and projected into embeddings \(e_a\) and \(e_b\). We additionally encode the relative layer gap \(b-a\), which provides the predictor with the transition distance. These conditioning signals are combined and injected between predictor blocks through FiLM/AdaLN-style modulation:
 
 
-\begin{center}\itshape Mod(h; a,b,t) = gamma(e\_a,e\_b,e\_(b-a),e\_t) x Norm(h) + beta(e\_a,e\_b,e\_(b-a),e\_t).\end{center}
+\[
+\operatorname{Mod}(h;a,b,t)
+= \gamma(e_a,e_b,e_{b-a},e_t)\times\operatorname{Norm}(h)
++ \beta(e_a,e_b,e_{b-a},e_t).
+\]
 
 
-The layer indices are not concatenated directly with the spatial input. Instead, source depth, target depth, relative gap, and timestep adapt the intermediate predictor features through channel-wise scale and shift parameters. The final projection restores the original token dimension and produces a representation in the coordinate system of target layer b.
+The layer indices are not concatenated directly with the spatial input. Instead, source depth, target depth, relative gap, and timestep adapt the intermediate predictor features through channel-wise scale and shift parameters. The final projection restores the original token dimension and produces a representation in the coordinate system of target layer \(b\).
 
 
 \begin{center}
@@ -197,14 +202,14 @@ All four architectures provide effective transition prediction, indicating that 
 
 \begin{answerbox}
 
-Figure 6 evaluates relatively challenging source-target pairs with large layer gaps rather than easy local transitions. As b-a increases, the representational discrepancy between A\_a(t) and A\_b(t) becomes larger, making the target representation harder to predict. This is quantitatively confirmed in Table 16 of Appendix C.3, where prediction error under uniform pair sampling increases monotonically with normalized layer gap.
+Figure 6 evaluates relatively challenging source-target pairs with large layer gaps rather than easy local transitions. As \(b-a\) increases, the representational discrepancy between \(A_a(t)\) and \(A_b(t)\) becomes larger, making the target representation harder to predict. This is quantitatively confirmed in Table 16 of Appendix C.3, where prediction error under uniform pair sampling increases monotonically with normalized layer gap.
 
 
 \begin{cleanTable}
 \small
 \begin{tabularx}{\linewidth}{Y C{0.28\linewidth}}
 \rowcolor{navy}
-\bfseries\color{white} Normalized layer-gap quartile & \bfseries\color{white} (L\_pred (lower is better)) \\
+\bfseries\color{white} Normalized layer-gap quartile & \bfseries\color{white} \(\mathcal{L}_{\mathrm{pred}}\) (lower is better) \\
 \midrule
 0-25\% & 0.025 \\
 25-50\% & 0.039 \\
@@ -220,7 +225,7 @@ Thus, the visual discrepancy in some columns of Figure 6 reflects the substantia
 This gap-dependent difficulty directly motivates transition consistency. It regularizes a difficult direct transition using a composition of shorter transitions, providing a more structured learning signal for large representational gaps. Consequently, the shared predictor learns long-range dependencies more effectively, although very distant pairs remain intrinsically harder than local ones.
 
 
-We also clarify a slight misunderstanding regarding the requested leave-one-out ablation. (L\_cons) is defined as a regularizer on top of (L\_pred), not as a standalone objective. Without (L\_pred), the transition paths are not anchored to actual target-layer representations. The meaningful leave-one-out comparisons therefore remove (L\_cons) or (L\_div) from the full objective.
+We also clarify a slight misunderstanding regarding the requested leave-one-out ablation. \(\mathcal{L}_{\mathrm{cons}}\) is defined as a regularizer on top of \(\mathcal{L}_{\mathrm{pred}}\), not as a standalone objective. Without \(\mathcal{L}_{\mathrm{pred}}\), the transition paths are not anchored to actual target-layer representations. The meaningful leave-one-out comparisons therefore remove \(\mathcal{L}_{\mathrm{cons}}\) or \(\mathcal{L}_{\mathrm{div}}\) from the full objective.
 
 
 Table 4 of the main paper reports the original FID-10K component ablation. Following the reviewer's suggestion, we additionally evaluated all meaningful variants using FID-50K under the same checkpoint, sampler, and evaluation protocol:
@@ -230,7 +235,7 @@ Table 4 of the main paper reports the original FID-10K component ablation. Follo
 \scriptsize
 \begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.24\linewidth} C{0.09\linewidth} C{0.09\linewidth} C{0.09\linewidth} C{0.18\linewidth} Y}
 \rowcolor{navy}
-\bfseries\color{white} Variant & \bfseries\color{white} (L\_pred) & \bfseries\color{white} (L\_cons) & \bfseries\color{white} (L\_div) & \bfseries\color{white} FID-10K (lower is better), Table 4 & \bfseries\color{white} FID-50K (lower is better), additional evaluation \\
+\bfseries\color{white} Variant & \bfseries\color{white} \(\mathcal{L}_{\mathrm{pred}}\) & \bfseries\color{white} \(\mathcal{L}_{\mathrm{cons}}\) & \bfseries\color{white} \(\mathcal{L}_{\mathrm{div}}\) & \bfseries\color{white} FID-10K (lower is better), Table 4 & \bfseries\color{white} FID-50K (lower is better), additional evaluation \\
 \midrule
 Vanilla & - & - & - & 49.36 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
 LayerSync & - & - & - & 43.26 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
@@ -243,7 +248,7 @@ Full LARA & Yes & Yes & Yes & 35.12 & \cellcolor{todopale}\textcolor{todored}{\b
 \end{cleanTable}
 
 
-In Table 4, adding (L\_cons) to (L\_pred) improves FID-10K from 42.73 to 38.85. The new FID-50K results show the same trend, while the direct comparison between Full LARA and the variant without consistency isolates the contribution of (L\_cons). Together with the gap-wise diagnostic in Table 16, these results support transition consistency as an effective mechanism for learning long-range layer transitions.
+In Table 4, adding \(\mathcal{L}_{\mathrm{cons}}\) to \(\mathcal{L}_{\mathrm{pred}}\) improves FID-10K from 42.73 to 38.85. The new FID-50K results show the same trend, while the direct comparison between Full LARA and the variant without consistency isolates the contribution of \(\mathcal{L}_{\mathrm{cons}}\). Together with the gap-wise diagnostic in Table 16, these results support transition consistency as an effective mechanism for learning long-range layer transitions.
 
 
 \end{answerbox}
@@ -264,9 +269,9 @@ In Table 4, adding (L\_cons) to (L\_pred) improves FID-10K from 42.73 to 38.85. 
 
 \begin{reviewbox}
 
-\textbf{Question.} In Figure 2, should the ordering of timesteps be reversed? A larger t corresponds to larger noise and therefore a less informative feature map.\par
+\textbf{Question.} In Figure 2, should the ordering of timesteps be reversed? A larger \(t\) corresponds to larger noise and therefore a less informative feature map.\par
 
-\textbf{Question.} For the layer-pair sampling strategy in Table 5, could the authors clarify the exact valid range for sampled pairs? For example, is there any lower bound on the source layer (a) or upper bound on the target layer (b)?\par
+\textbf{Question.} For the layer-pair sampling strategy in Table 5, could the authors clarify the exact valid range for sampled pairs? For example, is there any lower bound on the source layer \(a\) or upper bound on the target layer \(b\)?\par
 
 \end{reviewbox}
 
@@ -277,13 +282,15 @@ In Table 4, adding (L\_cons) to (L\_pred) improves FID-10K from 42.73 to 38.85. 
 The timestep labels in Figure 2 are inconsistent with the noise convention used in the experiment. This is a labeling issue only; the underlying activations and experimental results are unaffected. We will correct the ordering and label the axis directly by noise level and denoising direction.
 
 
-For a transformer with (L) blocks, valid source-target pairs satisfy
+For a transformer with \(L\) blocks, valid source-target pairs satisfy
 
 
-\begin{center}\itshape 1 <= a < b <= L.\end{center}
+\[
+1 \leq a < b \leq L.
+\]
 
 
-There are no additional hard bounds on (a) or (b). All valid pairs remain eligible, while their sampling probabilities depend on the selected pair-sampling schedule.
+There are no additional hard bounds on \(a\) or \(b\). All valid pairs remain eligible, while their sampling probabilities depend on the selected pair-sampling schedule.
 
 
 \end{answerbox}
@@ -406,7 +413,7 @@ LARA-Large & 25.4M & 18.6\% & 36.89 \\
 The lightest predictor adds only 1.9\% parameters while improving FID-10K from 43.26 to 38.46 over LayerSync under the same SiT-B/2 protocol. The Small predictor offers a stronger practical trade-off, using 4.3\% of the backbone while reaching 37.47 FID. Increasing capacity from Base to Large does not improve performance, indicating that the gain does not simply come from adding auxiliary parameters.
 
 
-More fundamentally, both SRA and LayerSync manually select alignment layers, making their configurations architecture- and domain-dependent rather than immediately transferable. SRA uses different fixed pairs for different SiT scales-(3->8), (6->16), and (8->20) for B, L, and XL, respectively. LayerSync likewise changes its selected pair across applications, using (8->16) for ImageNet, (8->21) for audio, and (3->6) for HumanML3D. These choices must therefore be reconsidered whenever the network depth, architecture, or modality changes. LARA removes this fixed-pair selection problem by training one layer-conditioned predictor over a distribution of source-target pairs. Importantly, this design does more than provide a flexible training interface: it distributes representation improvements across a much broader portion of the hierarchy instead of concentrating supervision around one selected pair. In Figure 5, LARA improves the layer-averaged Tiny ImageNet accuracy from 35.77 to 43.24, PASCAL VOC mIoU from 26.67 to 32.42, and DINOv2 CKA from 0.21 to 0.23 over LayerSync, despite being evaluated at 500K iterations versus LayerSync at 800K. The corresponding layerwise curves are also consistently broader and smoother across depth, showing that LARA strengthens representations throughout the network rather than only near a manually selected alignment relation.
+More fundamentally, both SRA and LayerSync manually select alignment layers, making their configurations architecture- and domain-dependent rather than immediately transferable. SRA uses different fixed pairs for different SiT scales-\((3\to8)\), \((6\to16)\), and \((8\to20)\) for B, L, and XL, respectively. LayerSync likewise changes its selected pair across applications, using \((8\to16)\) for ImageNet, \((8\to21)\) for audio, and \((3\to6)\) for HumanML3D. These choices must therefore be reconsidered whenever the network depth, architecture, or modality changes. LARA removes this fixed-pair selection problem by training one layer-conditioned predictor over a distribution of source-target pairs. Importantly, this design does more than provide a flexible training interface: it distributes representation improvements across a much broader portion of the hierarchy instead of concentrating supervision around one selected pair. In Figure 5, LARA improves the layer-averaged Tiny ImageNet accuracy from 35.77 to 43.24, PASCAL VOC mIoU from 26.67 to 32.42, and DINOv2 CKA from 0.21 to 0.23 over LayerSync, despite being evaluated at 500K iterations versus LayerSync at 800K. The corresponding layerwise curves are also consistently broader and smoother across depth, showing that LARA strengthens representations throughout the network rather than only near a manually selected alignment relation.
 
 
 \end{answerbox}
@@ -432,7 +439,7 @@ We also clarify the reviewer's statement that FID generally varies by 0.2-0.5 ac
 
 \begin{todobox}
 
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} No multi-seed mean +/- standard deviation values are supplied in the source draft; decide whether protocol justification alone is sufficient.\par
+\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} No multi-seed mean \(\pm\) standard deviation values are supplied in the source draft; decide whether protocol justification alone is sufficient.\par
 
 \end{todobox}
 
@@ -450,13 +457,16 @@ We also clarify the reviewer's statement that FID generally varies by 0.2-0.5 ac
 
 \begin{answerbox}
 
-To directly test whether the predictor learns meaningful layer-specific transitions, we conduct a controlled layer-skipping diagnostic using a single trained checkpoint, without retraining. For each source-target pair (a,b), we run the backbone up to layer (a), skip the intermediate blocks (a+1,...,b), and compare two routes before continuing through the same suffix (F\_\{b:L\}):
+To directly test whether the predictor learns meaningful layer-specific transitions, we conduct a controlled layer-skipping diagnostic using a single trained checkpoint, without retraining. For each source-target pair \((a,b)\), we run the backbone up to layer \(a\), skip the intermediate blocks \(a+1,\ldots,b\), and compare two routes before continuing through the same suffix \(F_{b:L}\):
 
 
-\textbf{Identity route:} pass the source activation (A\_a) directly to layer (b), without transformation.
+\textbf{Identity route:} pass the source activation \(A_a\) directly to layer \(b\), without transformation.
 
 
-\textbf{Predictor route:} transform A\_a into the target-layer coordinate system using A\_hat\_(a->b) = G(A\_a, e\_a, e\_b, e\_t).
+\textbf{Predictor route:} transform \(A_a\) into the target-layer coordinate system using
+\[
+\widehat{A}_{a\to b}=G(A_a,e_a,e_b,e_t).
+\]
 
 
 Both routes use the same checkpoint, initial noise, class labels, sampler, and number of sampling steps. We evaluate early, middle, and late transitions with different layer gaps and report generation FID. The identity route isolates the degradation caused by directly connecting semantically mismatched layers, while the predictor route tests whether LARA can reduce this mismatch. If the learned transition is effective, predictor routing should yield lower FID than identity routing, particularly for larger source-target gaps. We additionally visualize PCA maps of the source activation, predicted target activation, and actual target activation to verify that the predictor preserves the source spatial layout while adapting its representation toward the requested target depth.
@@ -466,7 +476,7 @@ Both routes use the same checkpoint, initial noise, class labels, sampler, and n
 \scriptsize
 \begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.31\linewidth} C{0.12\linewidth} C{0.12\linewidth} C{0.10\linewidth} Y}
 \rowcolor{navy}
-\bfseries\color{white} Route & \bfseries\color{white} Source (a) & \bfseries\color{white} Target (b) & \bfseries\color{white} Gap & \bfseries\color{white} FID (lower is better) \\
+\bfseries\color{white} Route & \bfseries\color{white} Source \(a\) & \bfseries\color{white} Target \(b\) & \bfseries\color{white} Gap & \bfseries\color{white} FID (lower is better) \\
 \midrule
 Full-backbone baseline & - & - & 0 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
 Predictor skip & 1 & 3 & 2 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
@@ -530,17 +540,17 @@ The evaluation is also not restricted to one network depth or to image generatio
 
 \begin{answerbox}
 
-Thank you for this suggestion. We agree that the diversity term should be understood through its interaction with transition prediction rather than in isolation. The existing objective ablation already supports this interpretation: diversity alone achieves 44.44 FID, transition prediction with consistency achieves 38.85, while combining them yields 35.12. Thus, (L\_div) is not the primary learning signal; instead, it prevents the stronger transition objective from making representations across depth excessively similar.
+Thank you for this suggestion. We agree that the diversity term should be understood through its interaction with transition prediction rather than in isolation. The existing objective ablation already supports this interpretation: diversity alone achieves 44.44 FID, transition prediction with consistency achieves 38.85, while combining them yields 35.12. Thus, \(\mathcal{L}_{\mathrm{div}}\) is not the primary learning signal; instead, it prevents the stronger transition objective from making representations across depth excessively similar.
 
 
-To study this interaction more directly, we fix lambda\_pred = 1 and vary the relative strength of the diversity loss from 0 to 8:
+To study this interaction more directly, we fix \(\lambda_{\mathrm{pred}}=1\) and vary the relative strength of the diversity loss from 0 to 8:
 
 
 \begin{cleanTable}
 \small
 \begin{tabularx}{\linewidth}{Y C{0.15\linewidth} C{0.19\linewidth} C{0.21\linewidth}}
 \rowcolor{navy}
-\bfseries\color{white} (lambda\_div) & \bfseries\color{white} (lambda\_pred) & \bfseries\color{white} (lambda\_div/\allowbreak{}lambda\_pred) & \bfseries\color{white} FID-10K (lower is better) \\
+\bfseries\color{white} \(\lambda_{\mathrm{div}}\) & \bfseries\color{white} \(\lambda_{\mathrm{pred}}\) & \bfseries\color{white} \(\lambda_{\mathrm{div}}/\lambda_{\mathrm{pred}}\) & \bfseries\color{white} FID-10K (lower is better) \\
 \midrule
 0 & 1 & 0 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
 1 & 1 & 1 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
@@ -558,21 +568,21 @@ Corresponding layerwise cosine-similarity heatmaps:
 
 \begin{todobox}
 
-\textcolor{blue}{Heatmap: (lambda\_div/lambda\_pred=0)  [placeholder URL]}\par
+\textcolor{blue}{Heatmap: \(\lambda_{\mathrm{div}}/\lambda_{\mathrm{pred}}=0\)  [placeholder URL]}\par
 
-\textcolor{blue}{Heatmap: (lambda\_div/lambda\_pred=1)  [placeholder URL]}\par
+\textcolor{blue}{Heatmap: \(\lambda_{\mathrm{div}}/\lambda_{\mathrm{pred}}=1\)  [placeholder URL]}\par
 
-\textcolor{blue}{Heatmap: (lambda\_div/lambda\_pred=2)  [placeholder URL]}\par
+\textcolor{blue}{Heatmap: \(\lambda_{\mathrm{div}}/\lambda_{\mathrm{pred}}=2\)  [placeholder URL]}\par
 
-\textcolor{blue}{Heatmap: (lambda\_div/lambda\_pred=4)  [placeholder URL]}\par
+\textcolor{blue}{Heatmap: \(\lambda_{\mathrm{div}}/\lambda_{\mathrm{pred}}=4\)  [placeholder URL]}\par
 
-\textcolor{blue}{Heatmap: (lambda\_div/lambda\_pred=8)  [placeholder URL]}\par
+\textcolor{blue}{Heatmap: \(\lambda_{\mathrm{div}}/\lambda_{\mathrm{pred}}=8\)  [placeholder URL]}\par
 
 \end{todobox}
 
 \begin{answerbox}
 
-The results expose a clear trade-off between transition alignment and layer diversity. Without (L\_div), the transition objective produces strong cross-layer similarity and risks homogenizing the representation hierarchy. Increasing (lambda\_div) progressively reduces off-diagonal similarity and preserves more layer-specific structure. However, an excessively large diversity weight over-separates the layers, weakens the shared structure required for accurate transition prediction, and degrades generation FID. The best performance is therefore expected at an intermediate ratio, where the representations remain sufficiently aligned for reliable cross-layer prediction while retaining distinct semantic roles across depth.
+The results expose a clear trade-off between transition alignment and layer diversity. Without \(\mathcal{L}_{\mathrm{div}}\), the transition objective produces strong cross-layer similarity and risks homogenizing the representation hierarchy. Increasing \(\lambda_{\mathrm{div}}\) progressively reduces off-diagonal similarity and preserves more layer-specific structure. However, an excessively large diversity weight over-separates the layers, weakens the shared structure required for accurate transition prediction, and degrades generation FID. The best performance is therefore expected at an intermediate ratio, where the representations remain sufficiently aligned for reliable cross-layer prediction while retaining distinct semantic roles across depth.
 
 
 \end{answerbox}
@@ -617,7 +627,7 @@ The results expose a clear trade-off between transition alignment and layer dive
 
 \begin{reviewbox}
 
-\textbf{Question.} Layer pair sampling relies on a truncated normal centered at L/2 with hand-tuned sigma values that differ per model size as I can see in Table 8. So this is a form of manual tuning that the paper claims to eliminate.\par
+\textbf{Question.} Layer pair sampling relies on a truncated normal centered at \(L/2\) with hand-tuned \(\sigma\) values that differ per model size as I can see in Table 8. So this is a form of manual tuning that the paper claims to eliminate.\par
 
 \end{reviewbox}
 
@@ -628,7 +638,7 @@ The results expose a clear trade-off between transition alignment and layer dive
 Thank you for raising this distinction. LARA eliminates the need to manually identify a specific source-target pair, not every possible sampling hyperparameter. This is already demonstrated by the full-uniform variant, which samples layer pairs without any preferred pair and improves FID from 43.26 for LayerSync to 39.24. The depth-centered gap prior further improves FID to 35.12 by changing only the probability assigned to different gaps and depths; it still trains one shared predictor over many layer relations rather than committing supervision to one handcrafted pair.
 
 
-Although Table 8 reports different numerical values across model sizes, they follow the same normalized rule rather than independent manual tuning: the mean gap is (L/4) for all three backbones-(3/12), (6/24), and (7/28)-while both the gap standard deviation and midpoint standard deviation are approximately (L/6)-(2/12), (4/24), and (4.7/28). Thus, the distribution scales directly with network depth. The Gaussian prior is motivated by the uniform-sampling diagnostic: very short transitions are easy but less informative, whereas very long transitions have substantially higher prediction error, increasing from 0.025 in the shortest-gap quartile to 0.152 in the longest. The prior therefore provides a simple architecture-scaled bias toward informative medium-distance transitions, rather than replacing fixed-pair selection with another exhaustive layer search.
+Although Table 8 reports different numerical values across model sizes, they follow the same normalized rule rather than independent manual tuning: the mean gap is \(L/4\) for all three backbones-\(3/12\), \(6/24\), and \(7/28\)-while both the gap standard deviation and midpoint standard deviation are approximately \(L/6\)-\(2/12\), \(4/24\), and \(4.7/28\). Thus, the distribution scales directly with network depth. The Gaussian prior is motivated by the uniform-sampling diagnostic: very short transitions are easy but less informative, whereas very long transitions have substantially higher prediction error, increasing from 0.025 in the shortest-gap quartile to 0.152 in the longest. The prior therefore provides a simple architecture-scaled bias toward informative medium-distance transitions, rather than replacing fixed-pair selection with another exhaustive layer search.
 
 
 \end{answerbox}
@@ -639,7 +649,7 @@ Although Table 8 reports different numerical values across model sizes, they fol
 
 \begin{reviewbox}
 
-\textbf{Question.} I can not see any error bars (average \(\pm\) sigma) or multi-seed runs in the results.\par
+\textbf{Question.} I can not see any error bars (average \(\pm\,\sigma\)) or multi-seed runs in the results.\par
 
 \end{reviewbox}
 
@@ -647,7 +657,7 @@ Although Table 8 reports different numerical values across model sizes, they fol
 
 \begin{answerbox}
 
-Thank you for raising this point. We acknowledge that the current large-scale ImageNet results are reported as single runs rather than mean +/- standard deviation. Full multi-seed training of SiT-XL/2 for up to 2M iterations is computationally expensive; this is also the reporting convention used by the directly related large-scale REPA, SRA, and LayerSync studies, whose main ImageNet tables report point estimates rather than multi-seed statistics.
+Thank you for raising this point. We acknowledge that the current large-scale ImageNet results are reported as single runs rather than mean \(\pm\) standard deviation. Full multi-seed training of SiT-XL/2 for up to 2M iterations is computationally expensive; this is also the reporting convention used by the directly related large-scale REPA, SRA, and LayerSync studies, whose main ImageNet tables report point estimates rather than multi-seed statistics.
 
 
 Nevertheless, a generic variance estimate cannot be transferred across different backbones, training stages, samplers, evaluators, and CFG settings without repeated runs under the same protocol. More importantly, our central conclusion does not rely on the near-saturated CFG comparison of 1.88 versus 1.93. In the controlled no-CFG setting at 2M iterations, LARA achieves 5.09 FID, compared with 6.80 for LayerSync and 7.97 for SRA-absolute improvements of 1.71 and 2.88 FID, respectively. The same ordering is observed across B/L/XL backbones and multiple training budgets, and is further supported by the HumanML3D and representation-quality results.
@@ -657,7 +667,7 @@ Nevertheless, a generic variance estimate cannot be transferred across different
 
 \begin{todobox}
 
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} No average +/- standard deviation values are supplied; add them if new multi-seed runs become available.\par
+\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} No average \(\pm\) standard deviation values are supplied; add them if new multi-seed runs become available.\par
 
 \end{todobox}
 
