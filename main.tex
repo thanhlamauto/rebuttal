@@ -445,17 +445,27 @@ Both routes use the same checkpoint, initial noise, class labels, sampler, and n
 
 
 \begin{cleanTable}
-\scriptsize
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.31\linewidth} C{0.12\linewidth} C{0.12\linewidth} C{0.10\linewidth} Y}
+\small
+\begin{tabularx}{\linewidth}{Y C{0.24\linewidth} C{0.24\linewidth}}
 \rowcolor{navy}
-\bfseries\color{white} Route & \bfseries\color{white} Source \(a\) & \bfseries\color{white} Target \(b\) & \bfseries\color{white} Gap & \bfseries\color{white} FID (lower is better) \\
+\bfseries\color{white} Route & \bfseries\color{white} Predictor & \bfseries\color{white} No predictor \\
 \midrule
-Full-backbone baseline & - & - & 0 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Predictor skip & 1 & 3 & 2 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Predictor skip & 4 & 8 & 4 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Predictor skip & 3 & 9 & 6 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Predictor skip & 2 & 10 & 8 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
-Predictor skip & 1 & 11 & 10 & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]} \\
+\(1\to3\) & \bfseries 167.23 & 168.19 \\
+\(4\to8\) & \bfseries 78.04 & 121.17 \\
+\(3\to9\) & \bfseries 106.09 & 130.13 \\
+\(2\to10\) & \bfseries 132.49 & 138.30 \\
+\(1\to11\) & \bfseries 182.07 & 200.53 \\
+\end{tabularx}
+\end{cleanTable}
+
+\begin{cleanTable}
+\small
+\begin{tabularx}{\linewidth}{Y C{0.24\linewidth} C{0.28\linewidth}}
+\rowcolor{navy}
+\bfseries\color{white} Mode & \bfseries\color{white} FID-10K & \bfseries\color{white} Tốc độ \\
+\midrule
+Predictor & \bfseries 190.69 & 21.73 ảnh/s \\
+No predictor & 245.15 & 25.20 ảnh/s \\
 \end{tabularx}
 \end{cleanTable}
 
@@ -465,10 +475,6 @@ Predictor skip & 1 & 11 & 10 & \cellcolor{todopale}\textcolor{todored}{\bfseries
 \begin{todobox}
 
 \textbf{\textcolor{todored}{Internal comment retained from source:}} \textquotedbl{}Bình luận về cái kết quả cuối này\textquotedbl{}.\par
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Fill all [XX.XX] generation-FID values in the layer-skipping diagnostic.\par
-
-\textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Add the identity-route rows described in the response, or revise the prose if those rows will not be reported.\par
 
 \textbf{\textcolor{todored}{TODO / PLACEHOLDER.}} Add the PCA visualizations and their final figure/link.\par
 
