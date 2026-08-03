@@ -144,6 +144,8 @@ The timestep embedding \(e_t\) follows the mechanism used in the SiT backbone. T
 The layer indices are not concatenated directly with the spatial input. Instead, source depth, target depth, relative gap, and timestep adapt the intermediate predictor features through channel-wise scale and shift parameters. The final projection restores the original token dimension and produces a representation in the coordinate system of target layer \(b\).
 
 
+
+
 \begin{center}
 \includegraphics[width=0.94\linewidth]{figures/predictor-architecture.png}
 \end{center}
@@ -410,7 +412,7 @@ More fundamentally, both SRA and LayerSync manually select alignment layers, mak
 
 \begin{answerbox}
 
-We also clarify the reviewer's statement that FID generally varies by 0.2-0.5 across seeds. Such a range is not protocol-independent and therefore cannot be assumed universally across different training budgets, samplers, guidance settings, evaluators, and stages of convergence. Moreover, the main large-scale ImageNet system-level results in REPA (Table 4), SRA (Table 3), and LayerSync (Table 2) are likewise presented as single reported values rather than multi-seed means with standard deviations; our reporting therefore follows the established protocol of the directly related literature. Under the controlled no-CFG setting at 2M iterations, LARA achieves 5.09 FID, compared with 6.80 for LayerSync and 7.97 for SRA-absolute improvements of 1.71 and 2.88 FID, respectively-which are substantially larger than the reviewer's proposed 0.2-0.5 range. The CFG comparison is reported only as system-level context, whereas the matched no-CFG results provide the primary controlled comparison.
+We also clarify the reviewer's statement that FID generally varies by 0.2-0.5 across seeds. Such a range is not protocol-independent and therefore cannot be assumed universally across different training budgets, samplers, guidance settings, evaluators, and stages of convergence. Moreover, the main large-scale ImageNet system-level results in REPA (Table 4), SRA (Table 3), and LayerSync (Table 2) are likewise presented as single reported values rather than multi-seed means with standard deviations; our reporting therefore follows the established protocol of the directly related literature. Under the controlled no-CFG setting at 2M iterations, LARA achieves 5.09 FID, compared with 6.80 for LayerSync and 7.97 for SRA-absolute improvements of 1.71 and 2.88 FID, respectively-which are substantially larger than the reviewer's proposed 0.2-0.5 range.
 
 
 \end{answerbox}
@@ -545,8 +547,8 @@ To study this interaction more directly, we fix \(\lambda_{\mathrm{pred}}=1\) an
 & 0.823531 \\
 
 1 & 1 & 1
-& \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]}
-& \cellcolor{todopale}\textcolor{todored}{\bfseries [X.XXXXXX]} \\
+& 67.9706
+& 0.651868 \\
 
 2 & 1 & 2 & 66.68
 % & \cellcolor{todopale}\textcolor{todored}{\bfseries [XX.XX]}
